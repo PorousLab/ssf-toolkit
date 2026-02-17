@@ -111,35 +111,42 @@ const ScaleDependentPredictor = () => {
     }
   };
 
-  // ============== EXPERIMENTAL DATA (from Table 3) ==============
+  // ============== EXPERIMENTAL DATA (from Table 3, log₁₀ removal values) ==============
   const experimentalData = {
     mini: [
-      { filter: 'MN-C0-', age: 1, sandType: 'coarse', inoc: false, removal: 3.61e-6 },
-      { filter: 'MN-C3-', age: 93, sandType: 'coarse', inoc: false, removal: 9.00e-6 },
-      { filter: 'MN-C3+', age: 90, sandType: 'coarse', inoc: true, removal: 0.031 },
-      { filter: 'MN-F0-', age: 1, sandType: 'fine', inoc: false, removal: 6.92e-4 },
-      { filter: 'MN-F3-', age: 100, sandType: 'fine', inoc: false, removal: 0.0105 },
-      { filter: 'MN-F3+', age: 96, sandType: 'fine', inoc: true, removal: 0.0155 },
-      { filter: 'MN-M0-', age: 1, sandType: 'mixed', inoc: false, removal: 8.56e-6 },
-      { filter: 'MN-M3-', age: 106, sandType: 'mixed', inoc: false, removal: 0.154 },
-      { filter: 'MN-M3+', age: 103, sandType: 'mixed', inoc: true, removal: 0.389 }
+      { filter: 'MN-C0-', age: 1, sandType: 'coarse', inoc: false, removal: 0.003 },
+      { filter: 'MN-C0+', age: 1, sandType: 'coarse', inoc: true, removal: 0.050 },
+      { filter: 'MN-C3-', age: 93, sandType: 'coarse', inoc: false, removal: 0.08 },
+      { filter: 'MN-C3+', age: 90, sandType: 'coarse', inoc: true, removal: 0.15 },
+      { filter: 'MN-F0-', age: 1, sandType: 'fine', inoc: false, removal: 0.000 },
+      { filter: 'MN-F0+', age: 1, sandType: 'fine', inoc: true, removal: 0.020 },
+      { filter: 'MN-F3-', age: 100, sandType: 'fine', inoc: false, removal: 0.05 },
+      { filter: 'MN-F3+', age: 96, sandType: 'fine', inoc: true, removal: 0.055 },
+      { filter: 'MN-M0-', age: 1, sandType: 'mixed', inoc: false, removal: 0.000 },
+      { filter: 'MN-M0+', age: 1, sandType: 'mixed', inoc: true, removal: 0.010 },
+      { filter: 'MN-M3-', age: 106, sandType: 'mixed', inoc: false, removal: 0.15 },
+      { filter: 'MN-M3+', age: 103, sandType: 'mixed', inoc: true, removal: 0.39 }
     ],
     midi: [
-      { filter: 'MD-C0+', age: 1, sandType: 'coarse', inoc: true, removal: 0.0455 },
-      { filter: 'MD-C3+', age: 105, sandType: 'coarse', inoc: true, removal: 0.170 },
-      { filter: 'MD-C7+', age: 230, sandType: 'coarse', inoc: true, removal: 0.203 },
-      { filter: 'MD-C12+', age: 390, sandType: 'coarse', inoc: true, removal: 0.582 },
-      { filter: 'MD-F0+', age: 1, sandType: 'fine', inoc: true, removal: 0.0955 },
-      { filter: 'MD-F3+', age: 107, sandType: 'fine', inoc: true, removal: 0.321 },
-      { filter: 'MD-F7+', age: 238, sandType: 'fine', inoc: true, removal: 0.245 },
-      { filter: 'MD-F12+', age: 392, sandType: 'fine', inoc: true, removal: 0.570 },
-      { filter: 'MD-M0+', age: 1, sandType: 'mixed', inoc: true, removal: 3.00e-6 },
-      { filter: 'MD-M3+', age: 111, sandType: 'mixed', inoc: true, removal: 2.94e-6 },
-      { filter: 'MD-M8+', age: 250, sandType: 'mixed', inoc: true, removal: 0.0688 },
-      { filter: 'MD-M12+', age: 397, sandType: 'mixed', inoc: true, removal: 0.574 },
-      { filter: 'MD-M3-', age: 113, sandType: 'mixed', inoc: false, removal: 2.47e-6 },
-      { filter: 'MD-M8-', age: 258, sandType: 'mixed', inoc: false, removal: 0.489 },
-      { filter: 'MD-M12-', age: 399, sandType: 'mixed', inoc: false, removal: 0.679 }
+      { filter: 'MD-C0+', age: 1, sandType: 'coarse', inoc: true, removal: 0.06 },
+      { filter: 'MD-C3+', age: 105, sandType: 'coarse', inoc: true, removal: 0.18 },
+      { filter: 'MD-C7+', age: 230, sandType: 'coarse', inoc: true, removal: 0.28 },
+      { filter: 'MD-C8-', age: 260, sandType: 'coarse', inoc: false, removal: 0.42 },
+      { filter: 'MD-C12+', age: 390, sandType: 'coarse', inoc: true, removal: 0.50 },
+      { filter: 'MD-C12-', age: 392, sandType: 'coarse', inoc: false, removal: 0.52 },
+      { filter: 'MD-F0+', age: 1, sandType: 'fine', inoc: true, removal: 0.10 },
+      { filter: 'MD-F3+', age: 107, sandType: 'fine', inoc: true, removal: 0.32 },
+      { filter: 'MD-F7+', age: 238, sandType: 'fine', inoc: true, removal: 0.25 },
+      { filter: 'MD-F8-', age: 250, sandType: 'fine', inoc: false, removal: 0.37 },
+      { filter: 'MD-F12+', age: 392, sandType: 'fine', inoc: true, removal: 0.54 },
+      { filter: 'MD-F12-', age: 394, sandType: 'fine', inoc: false, removal: 0.60 },
+      { filter: 'MD-M0+', age: 1, sandType: 'mixed', inoc: true, removal: 0.02 },
+      { filter: 'MD-M0-', age: 1, sandType: 'mixed', inoc: false, removal: 0.00 },
+      { filter: 'MD-M3+', age: 111, sandType: 'mixed', inoc: true, removal: 0.00 },
+      { filter: 'MD-M7+', age: 238, sandType: 'mixed', inoc: true, removal: 0.32 },
+      { filter: 'MD-M7-', age: 240, sandType: 'mixed', inoc: false, removal: 0.45 },
+      { filter: 'MD-M12+', age: 397, sandType: 'mixed', inoc: true, removal: 0.58 },
+      { filter: 'MD-M12-', age: 399, sandType: 'mixed', inoc: false, removal: 0.68 }
     ]
   };
 

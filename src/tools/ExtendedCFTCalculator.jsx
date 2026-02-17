@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine, ScatterChart, Scatter } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine } from 'recharts';
 
 // Extended CFT Calculator
 // Based on: Samari-Kermani et al. (2025) - From Roughness to Occlusion: 
@@ -15,14 +15,8 @@ const ExtendedCFTCalculator = () => {
   // Morphological descriptor
   const [svr, setSvr] = useState(0.21);                     // Surface-to-Volume Ratio [μm⁻¹]
   
-  // Classical CFT parameters (for comparison)
-  const [collectorDiameter, setCollectorDiameter] = useState(200);  // dc [μm]
-  const [particleDiameter, setParticleDiameter] = useState(1.0);    // dp [μm]
-  const [filterLength, setFilterLength] = useState(10);             // L [mm]
-  
   // UI state
   const [activePreset, setActivePreset] = useState(null);
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // ============== REGRESSION COEFFICIENTS (Table 6, Eq. 31) ==============
   const coefficients = {
@@ -105,59 +99,36 @@ const ExtendedCFTCalculator = () => {
     };
   }, [porosity, hydraulicCond, tortuosity, svr]);
 
-  // Classical CFT single-collector efficiency (Tufenkji-Elimelech 2004 simplified)
-  const classicalCFT = useMemo(() => {
-    // Simplified Happel model parameters
-    const As = 2 * (1 - Math.pow(1 - porosity, 5/3)) / (2 - 3 * Math.pow(1 - porosity, 1/3) + 3 * Math.pow(1 - porosity, 5/3) - 2 * Math.pow(1 - porosity, 2));
-    
-    // Dimensionless parameters (simplified)
-    const NR = particleDiameter / collectorDiameter; // Aspect ratio
-    const NPe = 1000; // Peclet number (assumed for comparison)
-    
-    // Simplified collector efficiency (order of magnitude)
-    const etaD = 2.4 * Math.pow(As, 1/3) * Math.pow(NR, -0.081) * Math.pow(NPe, -0.715);
-    const etaI = 0.55 * As * Math.pow(NR, 1.675);
-    const etaG = 0.22 * Math.pow(NR, -0.24); // Gravity term (simplified)
-    
-    const etaTotal = etaD + etaI + etaG;
-    
-    // First-order removal coefficient
-    const lambdaCFT = (3/2) * ((1 - porosity) / collectorDiameter) * etaTotal * 1000; // Convert to comparable units
-    
-    return {
-      etaD,
-      etaI,
-      etaG,
-      etaTotal,
-      lambda: Math.min(lambdaCFT, 50) // Cap for display
-    };
-  }, [porosity, collectorDiameter, particleDiameter]);
+  // Clean-bed baseline: regression with θ₀=0.35, HC₀=1.0, τ₀=1.15, SVR₀=0
+  const cleanBedLambda = useMemo(() => {
+    const { beta0, beta1, beta2, beta3, beta4 } = coefficients;
+    return beta0 + beta1 * 0.35 + beta2 * 1.0 + beta3 * 1.15 + beta4 * 0.0;
+  }, []);
 
-  // Log removal calculation
-  const logRemoval = useMemo(() => {
-    const L_m = filterLength / 1000; // Convert mm to m
-    // Using the regression λ directly (already in appropriate units for the system)
-    const removal = lambdaExtended * L_m * 0.1; // Scale factor for visualization
-    return Math.max(0, removal);
-  }, [lambdaExtended, filterLength]);
+  // Derived removal metrics
+  const removalMetrics = useMemo(() => {
+    const log10Removal = Math.max(0, lambdaExtended / Math.LN10);
+    const percentRemoval = lambdaExtended > 0 ? (1 - Math.exp(-lambdaExtended)) * 100 : 0;
+    const cleanBedLog10 = Math.max(0, cleanBedLambda / Math.LN10);
+    const enhancementRatio = cleanBedLambda > 0 ? lambdaExtended / cleanBedLambda : Infinity;
+    return { log10Removal, percentRemoval, cleanBedLog10, enhancementRatio };
+  }, [lambdaExtended, cleanBedLambda]);
 
-  // Generate depth profile data
-  const depthProfile = useMemo(() => {
+  // Porosity sensitivity data: how removal changes as porosity decreases (biofilm grows)
+  const porositySensitivity = useMemo(() => {
     const data = [];
-    const numPoints = 50;
-    for (let i = 0; i <= numPoints; i++) {
-      const depth = (i / numPoints) * filterLength;
-      // Simplified exponential decay using λ
-      const scaledLambda = lambdaExtended * 0.1; // Scale for visualization
-      const CoverC0 = Math.exp(-scaledLambda * depth / 1000);
+    const { beta0, beta1, beta2, beta3, beta4 } = coefficients;
+    for (let theta = 0.35; theta >= 0.02; theta -= 0.01) {
+      const lambda = beta0 + beta1 * theta + beta2 * hydraulicCond + beta3 * tortuosity + beta4 * svr;
+      const log10 = Math.max(0, lambda / Math.LN10);
       data.push({
-        depth,
-        extended: Math.max(0, (1 - CoverC0) * 100),
-        classical: Math.max(0, (1 - Math.exp(-classicalCFT.lambda * 0.01 * depth / 1000)) * 100)
+        porosity: theta,
+        lnRemoval: Math.max(0, lambda),
+        log10Removal: log10
       });
     }
     return data;
-  }, [lambdaExtended, classicalCFT.lambda, filterLength]);
+  }, [hydraulicCond, tortuosity, svr]);
 
   // Biofilm stage comparison data
   const stageComparison = useMemo(() => {
@@ -335,42 +306,6 @@ const ExtendedCFTCalculator = () => {
               </div>
             </div>
 
-            {/* Advanced: Classical CFT Comparison */}
-            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-              <button 
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center justify-between w-full text-sm font-semibold text-gray-700"
-              >
-                <span>Classical CFT Parameters</span>
-                <span className="text-gray-400">{showAdvanced ? '▲' : '▼'}</span>
-              </button>
-              
-              {showAdvanced && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <Slider 
-                    label="Collector diameter (dₛ)" 
-                    value={collectorDiameter} 
-                    setValue={setCollectorDiameter} 
-                    min={50} max={500} step={10} 
-                    unit="μm"
-                  />
-                  <Slider 
-                    label="Particle diameter (dₚ)" 
-                    value={particleDiameter} 
-                    setValue={setParticleDiameter} 
-                    min={0.1} max={5} step={0.1} 
-                    unit="μm"
-                  />
-                  <Slider 
-                    label="Filter length (L)" 
-                    value={filterLength} 
-                    setValue={setFilterLength} 
-                    min={1} max={50} step={1} 
-                    unit="mm"
-                  />
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Right Panel: Results */}
@@ -379,40 +314,40 @@ const ExtendedCFTCalculator = () => {
             <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
               <h2 className="text-sm font-semibold text-gray-700 mb-3">Model Output</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <MetricCard 
-                  title="Extended λ" 
-                  value={lambdaExtended.toFixed(2)} 
-                  unit="d⁻¹" 
-                  subtitle="Image-informed"
+                <MetricCard
+                  title="−ln(C/C₀)"
+                  value={lambdaExtended.toFixed(2)}
+                  unit=""
+                  subtitle="Natural log removal"
                   color="blue"
                 />
-                <MetricCard 
-                  title="Classical λ (CFT)" 
-                  value={classicalCFT.lambda.toFixed(2)} 
-                  unit="d⁻¹" 
-                  subtitle="Clean-bed baseline"
+                <MetricCard
+                  title="Log₁₀ Removal"
+                  value={removalMetrics.log10Removal.toFixed(2)}
+                  unit=""
+                  subtitle="= −ln(C/C₀) / 2.303"
                   color="green"
                 />
-                <MetricCard 
-                  title="Enhancement Ratio" 
-                  value={(lambdaExtended / Math.max(classicalCFT.lambda, 0.1)).toFixed(1)} 
-                  unit="×" 
-                  subtitle="Extended / Classical"
-                  color="purple"
-                />
-                <MetricCard 
-                  title="Est. Log Removal" 
-                  value={logRemoval.toFixed(1)} 
-                  unit="" 
-                  subtitle={`over ${filterLength} mm`}
+                <MetricCard
+                  title="% Removal"
+                  value={removalMetrics.percentRemoval.toFixed(1)}
+                  unit="%"
+                  subtitle="1 − C/C₀"
                   color="amber"
+                />
+                <MetricCard
+                  title="vs Clean Bed"
+                  value={removalMetrics.enhancementRatio > 0 && isFinite(removalMetrics.enhancementRatio) ? removalMetrics.enhancementRatio.toFixed(1) : '—'}
+                  unit="×"
+                  subtitle={`Clean bed: ${cleanBedLambda.toFixed(1)}`}
+                  color="purple"
                 />
               </div>
             </div>
 
             {/* Parameter Contributions */}
             <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">Parameter Contributions to λ</h2>
+              <h2 className="text-sm font-semibold text-gray-700 mb-3">Parameter Contributions to −ln(C/C₀)</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={contributionData} layout="vertical" margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -467,14 +402,14 @@ const ExtendedCFTCalculator = () => {
                     textAnchor="end"
                     height={50}
                   />
-                  <YAxis 
-                    label={{ value: 'λ (d⁻¹)', angle: -90, position: 'insideLeft', fontSize: 12 }}
+                  <YAxis
+                    label={{ value: '−ln(C/C₀)', angle: -90, position: 'insideLeft', fontSize: 12 }}
                     fontSize={11}
                   />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value, name, props) => [
-                      `${value.toFixed(2)} d⁻¹`,
-                      `λ (${props.payload.stage})`
+                      `${value.toFixed(2)} (${(Math.max(0, value) / Math.LN10).toFixed(2)} log₁₀)`,
+                      `${props.payload.stage}`
                     ]}
                     labelFormatter={(label) => label}
                   />
@@ -496,49 +431,45 @@ const ExtendedCFTCalculator = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* Removal Profile Comparison */}
+            {/* Porosity Sensitivity */}
             <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">Cumulative Removal: Extended vs Classical CFT</h2>
+              <h2 className="text-sm font-semibold text-gray-700 mb-3">Removal vs Porosity (Biofilm Growth Effect)</h2>
               <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={depthProfile} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
+                <LineChart data={porositySensitivity} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="depth" 
-                    label={{ value: 'Filter Depth (mm)', position: 'bottom', offset: 0, fontSize: 12 }}
+                  <XAxis
+                    dataKey="porosity"
+                    label={{ value: 'Porosity (θ) — decreases as biofilm grows →', position: 'bottom', offset: 0, fontSize: 12 }}
+                    fontSize={11}
+                    reversed
+                    tickFormatter={(v) => v.toFixed(2)}
+                  />
+                  <YAxis
+                    label={{ value: 'Log₁₀ Removal', angle: -90, position: 'insideLeft', fontSize: 12 }}
                     fontSize={11}
                   />
-                  <YAxis 
-                    label={{ value: 'Removal (%)', angle: -90, position: 'insideLeft', fontSize: 12 }}
-                    domain={[0, 100]}
-                    fontSize={11}
-                  />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value, name) => [
-                      `${value.toFixed(1)}%`,
-                      name === 'extended' ? 'Extended CFT' : 'Classical CFT'
+                      `${value.toFixed(2)}`,
+                      name === 'log10Removal' ? 'Log₁₀ removal' : '−ln(C/C₀)'
                     ]}
-                    labelFormatter={(label) => `Depth: ${label.toFixed(1)} mm`}
+                    labelFormatter={(label) => `θ = ${parseFloat(label).toFixed(2)}`}
                   />
                   <Legend verticalAlign="top" height={36} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="extended" 
-                    stroke="#2563eb" 
+                  <ReferenceLine x={porosity} stroke="#ef4444" strokeDasharray="5 5" label={{ value: 'Current θ', position: 'top', fontSize: 10, fill: '#ef4444' }} />
+                  <Line
+                    type="monotone"
+                    dataKey="log10Removal"
+                    stroke="#2563eb"
                     strokeWidth={2.5}
                     dot={false}
-                    name="Extended CFT (biofilm)"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="classical" 
-                    stroke="#22c55e" 
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
-                    name="Classical CFT (clean bed)"
+                    name="Log₁₀ removal"
                   />
                 </LineChart>
               </ResponsiveContainer>
+              <div className="mt-2 text-xs text-gray-500 text-center">
+                As biofilm grows, porosity decreases and removal increases non-linearly due to combined θ, HC, and τ effects.
+              </div>
             </div>
 
             {/* Governing Equation */}
@@ -546,7 +477,7 @@ const ExtendedCFTCalculator = () => {
               <h2 className="text-sm font-semibold mb-3">Governing Equation (Eq. 31)</h2>
               <div className="font-mono text-sm space-y-2">
                 <div className="text-blue-300">
-                  λ = β₀ + β₁·θ + β₂·HC + β₃·τ + β₄·SVR
+                  −ln(C/C₀) = β₀ + β₁·θ + β₂·HC + β₃·τ + β₄·SVR
                 </div>
                 <div className="text-gray-400 text-xs mt-3">Fitted coefficients:</div>
                 <div className="grid grid-cols-5 gap-2 text-xs">

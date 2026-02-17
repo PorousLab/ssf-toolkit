@@ -120,16 +120,16 @@ const EPSRemovalPredictor = () => {
     // Chapter 5: Combined scales
     combined: {
       name: 'Combined Scales (Ch. 5)',
-      description: 'Mini + Midi combined — EPS components as separate predictors',
+      description: 'Mini + Midi combined — biomass and age as predictors',
       models: {
         A: {
-          name: 'Model A (EPS Components)',
-          equation: 'λ = a₀ + a₁ × carbohydrate + a₂ × protein',
-          coefficients: { a0: 0.088, a1: 2.10e-9, a2: 0 }, // Approximated from Table 4
+          name: 'Model A (Biomass)',
+          equation: 'λ = a₀ + a₁ × biomass',
+          coefficients: { a0: 0.0884, a1: 2.10e-9 },
           rSquared: 0.43,
           pValue: 3.30e-4,
           calculate: (params) => {
-            return 0.088 + 2.10e-9 * params.biomass; // Uses biomass as proxy
+            return 0.0884 + 2.10e-9 * params.biomass;
           }
         },
         B: {
@@ -323,7 +323,7 @@ const EPSRemovalPredictor = () => {
   // Age sensitivity
   const ageSensitivity = useMemo(() => {
     const data = [];
-    for (let age = 0; age <= 365; age += 30) {
+    for (let age = 0; age <= 730; age += 30) {
       const testParams = { ...currentParams, sdAge: age };
       
       const midiB = models.midi.models.B.calculate(testParams);
@@ -488,11 +488,11 @@ const EPSRemovalPredictor = () => {
                 description="EPS protein in Schmutzdecke"
               />
               
-              <Slider 
-                label="Carbohydrate content" 
-                value={carbohydrate} 
-                setValue={setCarbohydrate} 
-                min={10} max={300} step={10} 
+              <Slider
+                label="Carbohydrate content"
+                value={carbohydrate}
+                setValue={setCarbohydrate}
+                min={10} max={500} step={10}
                 unit="µg/g"
                 description="EPS carbohydrate in Schmutzdecke"
               />
@@ -523,11 +523,11 @@ const EPSRemovalPredictor = () => {
             <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
               <h2 className="text-sm font-semibold text-gray-700 mb-3">Abiotic Parameters</h2>
               
-              <Slider 
-                label="Schmutzdecke age" 
-                value={sdAge} 
-                setValue={setSdAge} 
-                min={0} max={365} step={7} 
+              <Slider
+                label="Schmutzdecke age"
+                value={sdAge}
+                setValue={setSdAge}
+                min={0} max={730} step={7}
                 unit="days"
               />
               

@@ -6,47 +6,47 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 const SSFModelExplorer = () => {
   // Hydraulic parameters
-  const [velocity, setVelocity] = useState(0.5); // m/day
+  const [velocity, setVelocity] = useState(3.6); // m/day pore water velocity (≈ 0.15 m/h Darcy / 0.4 porosity)
   const [dispersivity, setDispersivity] = useState(0.005); // m
-  const [filterDepth, setFilterDepth] = useState(1.0); // m
-  
+  const [filterDepth, setFilterDepth] = useState(0.8); // m (typical pilot SSF)
+
   // Site 1 parameters (slow detachment - governs removal)
-  const [kAtt1, setKAtt1] = useState(50); // day⁻¹
-  const [kDet1, setKDet1] = useState(0.1); // day⁻¹
-  const [muS1, setMuS1] = useState(0.5); // day⁻¹
-  
+  const [kAtt1, setKAtt1] = useState(12); // day⁻¹
+  const [kDet1, setKDet1] = useState(0.05); // day⁻¹
+  const [muS1, setMuS1] = useState(0.2); // day⁻¹
+
   // Site 2 parameters (fast detachment - governs tailing)
-  const [kAtt2, setKAtt2] = useState(30); // day⁻¹
-  const [kDet2, setKDet2] = useState(10); // day⁻¹
-  const [muS2, setMuS2] = useState(0.5); // day⁻¹
-  
+  const [kAtt2, setKAtt2] = useState(4); // day⁻¹
+  const [kDet2, setKDet2] = useState(1.5); // day⁻¹
+  const [muS2, setMuS2] = useState(0.2); // day⁻¹
+
   // Liquid phase inactivation
-  const [muL, setMuL] = useState(0.1); // day⁻¹
+  const [muL, setMuL] = useState(0.05); // day⁻¹
   
   // UI state
   const [activePreset, setActivePreset] = useState(null);
 
-  // Presets based on typical SSF conditions
+  // Presets calibrated to produce realistic 0.3-2 log removal for SSF
   const presets = {
     cleanBed: {
       name: 'Clean Bed (New Filter)',
-      params: { velocity: 0.5, dispersivity: 0.005, filterDepth: 1.0, kAtt1: 20, kDet1: 0.5, muS1: 0.3, kAtt2: 15, kDet2: 15, muS2: 0.3, muL: 0.1 },
-      description: 'Fresh filter bed without developed Schmutzdecke'
+      params: { velocity: 3.6, dispersivity: 0.005, filterDepth: 0.8, kAtt1: 5, kDet1: 0.2, muS1: 0.2, kAtt2: 2, kDet2: 2, muS2: 0.2, muL: 0.05 },
+      description: 'Fresh filter bed — low attachment, ~0.3 log removal'
     },
     matureFilter: {
-      name: 'Mature Filter (6+ weeks)',
-      params: { velocity: 0.5, dispersivity: 0.005, filterDepth: 1.0, kAtt1: 80, kDet1: 0.05, muS1: 0.8, kAtt2: 40, kDet2: 8, muS2: 0.6, muL: 0.1 },
-      description: 'Well-ripened filter with active Schmutzdecke'
+      name: 'Mature Filter (12+ months)',
+      params: { velocity: 3.6, dispersivity: 0.005, filterDepth: 0.8, kAtt1: 20, kDet1: 0.03, muS1: 0.3, kAtt2: 8, kDet2: 1, muS2: 0.3, muL: 0.05 },
+      description: 'Well-ripened Schmutzdecke — ~1.9 log removal'
     },
     dutchSSF: {
       name: 'Dutch Practice (QMRA)',
-      params: { velocity: 0.3, dispersivity: 0.008, filterDepth: 0.8, kAtt1: 60, kDet1: 0.1, muS1: 0.5, kAtt2: 35, kDet2: 12, muS2: 0.5, muL: 0.05 },
-      description: 'Typical parameters for Dutch waterworks'
+      params: { velocity: 3.6, dispersivity: 0.008, filterDepth: 0.8, kAtt1: 15, kDet1: 0.05, muS1: 0.2, kAtt2: 6, kDet2: 1.2, muS2: 0.2, muL: 0.05 },
+      description: 'Typical parameters for Dutch DWTP — ~1.2 log removal'
     },
     highLoading: {
       name: 'High Hydraulic Loading',
-      params: { velocity: 1.2, dispersivity: 0.003, filterDepth: 1.2, kAtt1: 50, kDet1: 0.1, muS1: 0.5, kAtt2: 30, kDet2: 10, muS2: 0.5, muL: 0.1 },
-      description: 'Increased flow rate scenario'
+      params: { velocity: 8.0, dispersivity: 0.003, filterDepth: 1.0, kAtt1: 15, kDet1: 0.05, muS1: 0.2, kAtt2: 6, kDet2: 1.2, muS2: 0.2, muL: 0.05 },
+      description: 'Increased flow rate — reduced contact time, ~0.7 log removal'
     }
   };
 
@@ -195,7 +195,7 @@ const SSFModelExplorer = () => {
             {/* Hydraulic Parameters */}
             <div className="bg-white rounded-lg shadow-sm p-4">
               <h2 className="text-sm font-semibold text-gray-700 mb-3">Hydraulic Parameters</h2>
-              <Slider label="Pore velocity (v)" value={velocity} setValue={setVelocity} min={0.1} max={2.0} step={0.05} unit="m/d" />
+              <Slider label="Pore velocity (v)" value={velocity} setValue={setVelocity} min={1.0} max={20.0} step={0.5} unit="m/d" />
               <Slider label="Dispersivity (αL)" value={dispersivity} setValue={setDispersivity} min={0.001} max={0.02} step={0.001} unit="m" />
               <Slider label="Filter depth (L)" value={filterDepth} setValue={setFilterDepth} min={0.3} max={1.5} step={0.05} unit="m" />
             </div>
@@ -204,18 +204,18 @@ const SSFModelExplorer = () => {
             <div className="bg-white rounded-lg shadow-sm p-4">
               <h2 className="text-sm font-semibold text-gray-700 mb-2">Site 1 — Slow Detachment</h2>
               <p className="text-xs text-gray-500 mb-3">Governs primary removal</p>
-              <Slider label="Attachment rate (katt,1)" value={kAtt1} setValue={setKAtt1} min={5} max={150} step={1} unit="d⁻¹" />
-              <Slider label="Detachment rate (kdet,1)" value={kDet1} setValue={setKDet1} min={0.01} max={2} step={0.01} unit="d⁻¹" />
-              <Slider label="Solid inactivation (μs,1)" value={muS1} setValue={setMuS1} min={0.1} max={1.5} step={0.05} unit="d⁻¹" />
+              <Slider label="Attachment rate (katt,1)" value={kAtt1} setValue={setKAtt1} min={1} max={30} step={0.5} unit="d⁻¹" />
+              <Slider label="Detachment rate (kdet,1)" value={kDet1} setValue={setKDet1} min={0.01} max={1} step={0.01} unit="d⁻¹" />
+              <Slider label="Solid inactivation (μs,1)" value={muS1} setValue={setMuS1} min={0.01} max={1} step={0.01} unit="d⁻¹" />
             </div>
 
             {/* Site 2 Parameters */}
             <div className="bg-white rounded-lg shadow-sm p-4">
               <h2 className="text-sm font-semibold text-gray-700 mb-2">Site 2 — Fast Detachment</h2>
               <p className="text-xs text-gray-500 mb-3">Governs tailing behaviour</p>
-              <Slider label="Attachment rate (katt,2)" value={kAtt2} setValue={setKAtt2} min={5} max={100} step={1} unit="d⁻¹" />
-              <Slider label="Detachment rate (kdet,2)" value={kDet2} setValue={setKDet2} min={1} max={50} step={0.5} unit="d⁻¹" />
-              <Slider label="Solid inactivation (μs,2)" value={muS2} setValue={setMuS2} min={0.1} max={1.5} step={0.05} unit="d⁻¹" />
+              <Slider label="Attachment rate (katt,2)" value={kAtt2} setValue={setKAtt2} min={0.5} max={15} step={0.5} unit="d⁻¹" />
+              <Slider label="Detachment rate (kdet,2)" value={kDet2} setValue={setKDet2} min={0.1} max={5} step={0.1} unit="d⁻¹" />
+              <Slider label="Solid inactivation (μs,2)" value={muS2} setValue={setMuS2} min={0.01} max={1} step={0.01} unit="d⁻¹" />
             </div>
 
             {/* Liquid Phase */}
