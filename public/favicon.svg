@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="water" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Filter container -->
+  <rect x="15" y="10" width="70" height="80" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  
+  <!-- Water layer -->
+  <rect x="20" y="15" width="60" height="15" fill="url(#water)" rx="2"/>
+  
+  <!-- Schmutzdecke (biofilm layer) -->
+  <rect x="20" y="30" width="60" height="8" fill="#22c55e" rx="1"/>
+  
+  <!-- Sand layer -->
+  <rect x="20" y="38" width="60" height="47" fill="url(#sand)" rx="2"/>
+  
+  <!-- Sand grains (dots) -->
+  <circle cx="30" cy="50" r="3" fill="#92400e" opacity="0.5"/>
+  <circle cx="45" cy="55" r="4" fill="#92400e" opacity="0.5"/>
+  <circle cx="60" cy="48" r="3" fill="#92400e" opacity="0.5"/>
+  <circle cx="70" cy="60" r="4" fill="#92400e" opacity="0.5"/>
+  <circle cx="35" cy="65" r="3" fill="#92400e" opacity="0.5"/>
+  <circle cx="55" cy="70" r="4" fill="#92400e" opacity="0.5"/>
+  <circle cx="40" cy="78" r="3" fill="#92400e" opacity="0.5"/>
+  <circle cx="65" cy="75" r="3" fill="#92400e" opacity="0.5"/>
+  
+  <!-- Water drop -->
+  <path d="M50 5 Q55 12 50 18 Q45 12 50 5" fill="#3b82f6"/>
+</svg>
