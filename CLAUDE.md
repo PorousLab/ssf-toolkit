@@ -267,6 +267,29 @@ const presets = {
 
 ---
 
+## Tool Verification Status
+
+### Verified Correct (DO NOT MODIFY coefficients)
+- SSFModelExplorer.jsx — Schijven two-site model equations ✓
+- ExtendedCFTCalculator.jsx — Eq. 3.31 coefficients (18.33, -13.29, -15.34, -10.12, -0.11) ✓
+- EPSRemovalPredictor.jsx — All 11 regression models from Ch.4-6 ✓
+- ScaleDependentPredictor.jsx — All 5 Ch.5 models ✓
+- LayerContributionExplorer.jsx — Ch.6 Models A/B/C ✓
+
+### Key Scientific Rules
+- Chapter 3 regression outputs -ln(C/C₀), NOT log₁₀ or λ in d⁻¹
+- Chapters 4-6 regressions output -log₁₀(C/C₀)
+- Always verify coefficients against docs/regression-equations.md before changing
+- Experimental data values are log₁₀ removal, not raw C/C₀ ratios
+
+### Parameter Ranges (validated against thesis)
+- Carbohydrate: 0-500 µg/g
+- Protein: 0-300 µg/g
+- SD_age: 0-730 days
+- SSF log removal: typically 1-4 (not 20+)
+
+---
+
 ## Notes for Claude Code
 
 - Always run `npm run dev` to test changes locally before committing

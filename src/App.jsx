@@ -6,12 +6,24 @@ import ExtendedCFTCalculator from './tools/ExtendedCFTCalculator';
 import EPSRemovalPredictor from './tools/EPSRemovalPredictor';
 import ScaleDependentPredictor from './tools/ScaleDependentPredictor';
 import LayerContributionExplorer from './tools/LayerContributionExplorer';
+import TufenkjiElimelech from './tools/TufenkjiElimelech';
 
 // SSF Toolkit - Unified Dashboard
 const SSFToolkit = () => {
   const [activeTool, setActiveTool] = useState('home');
 
   const tools = {
+    'te-efficiency': {
+      id: 'te-efficiency',
+      name: 'Tufenkji-Elimelech Collector Efficiency',
+      shortName: 'TE Efficiency',
+      description: 'Single-collector contact efficiency for particle capture in porous media',
+      source: 'Tufenkji & Elimelech (2004)',
+      chapter: 'Classical CFT',
+      icon: '⚛️',
+      color: '#06b6d4',
+      component: TufenkjiElimelech
+    },
     'ssf-model': {
       id: 'ssf-model',
       name: 'SSF Steady-State Model',
@@ -195,37 +207,59 @@ const HomePage = ({ tools, setActiveTool }) => {
           </div>
         ))}
 
-        {/* Coming Soon */}
-        <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-center">
-          <span className="text-4xl mb-3">🔧</span>
-          <h3 className="font-semibold text-gray-600 mb-2">More Tools Coming</h3>
-          <p className="text-sm text-gray-500">Additional SSF tools will be added.</p>
-        </div>
       </div>
 
-      {/* Scale Progression */}
-      <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 border border-blue-200">
-        <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">
-          Pore → Mini → Midi → Pilot: Multi-Scale Framework
+      {/* Dual-Track Framework */}
+      <div className="bg-gradient-to-r from-cyan-50 via-blue-50 to-green-50 rounded-xl p-6 border border-blue-200">
+        <h2 className="text-lg font-bold text-gray-800 mb-5 text-center">
+          From Theory to Practice: A Dual-Track Framework
         </h2>
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          {[
-            { icon: '🔬', name: 'Pore Scale', desc: 'Microfluidics' },
-            { icon: '🧪', name: 'Mini Scale', desc: '10 cm columns' },
-            { icon: '🏗️', name: 'Midi Scale', desc: '52 cm columns' },
-            { icon: '🏭', name: 'Pilot Scale', desc: 'DWTP filters' }
-          ].map((scale, i) => (
-            <React.Fragment key={scale.name}>
-              {i > 0 && <span className="text-gray-400">→</span>}
-              <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm">
-                <span className="text-xl">{scale.icon}</span>
-                <div>
-                  <div className="text-xs font-semibold text-gray-700">{scale.name}</div>
-                  <div className="text-xs text-gray-500">{scale.desc}</div>
+
+        {/* Theory Track */}
+        <div className="mb-4">
+          <div className="text-xs font-semibold text-cyan-700 uppercase tracking-wider mb-2 text-center">Theory Track — Model Development</div>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {[
+              { icon: '⚛️', name: 'TE (η₀)', desc: 'Classical CFT', color: 'border-cyan-200 bg-cyan-50' },
+              { icon: '🔬', name: 'Extended CFT (η_biofilm)', desc: 'Biofilm-informed', color: 'border-purple-200 bg-purple-50' },
+              { icon: '📈', name: 'Regression Models (λ)', desc: 'EPS-based', color: 'border-green-200 bg-green-50' }
+            ].map((step, i) => (
+              <React.Fragment key={step.name}>
+                {i > 0 && <span className="text-cyan-400 font-bold">→</span>}
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm border ${step.color}`}>
+                  <span className="text-xl">{step.icon}</span>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-700">{step.name}</div>
+                    <div className="text-xs text-gray-500">{step.desc}</div>
+                  </div>
                 </div>
-              </div>
-            </React.Fragment>
-          ))}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+
+        {/* Scale Track */}
+        <div>
+          <div className="text-xs font-semibold text-green-700 uppercase tracking-wider mb-2 text-center">Scale Track — Experimental Validation</div>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {[
+              { icon: '🔬', name: 'Pore Scale', desc: 'Microfluidics' },
+              { icon: '🧪', name: 'Mini Scale', desc: '10 cm columns' },
+              { icon: '🏗️', name: 'Midi Scale', desc: '52 cm columns' },
+              { icon: '🏭', name: 'Pilot Scale', desc: 'DWTP filters' }
+            ].map((scale, i) => (
+              <React.Fragment key={scale.name}>
+                {i > 0 && <span className="text-green-400 font-bold">→</span>}
+                <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200">
+                  <span className="text-xl">{scale.icon}</span>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-700">{scale.name}</div>
+                    <div className="text-xs text-gray-500">{scale.desc}</div>
+                  </div>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       </div>
     </div>
