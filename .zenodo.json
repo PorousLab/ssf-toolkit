@@ -1,0 +1,51 @@
+{
+    "title": "SSF Toolkit: Interactive Tools for Slow Sand Filtration Research",
+    "description": "Interactive web-based tools for slow sand filtration research, accompanying the PhD thesis 'From Pores to Pilot Filters: Biofilm-Driven Bacterial Removal in Slow Sand Filtration' by Mandana Samari Kermani (Utrecht University). Includes a two-site kinetic steady-state model, extended colloid filtration theory calculator, EPS-based predictor, scale-dependent predictor, and layer contribution explorer.",
+    "upload_type": "software",
+    "creators": [
+        {
+            "name": "Samari Kermani, Mandana",
+            "affiliation": "Utrecht University"
+        },
+        {
+            "name": "Raoof, Amir",
+            "orcid": "0000-0003-1613-6546",
+            "affiliation": "Utrecht University"
+        }
+    ],
+    "contributors": [
+        {
+            "name": "Raoof, Amir",
+            "orcid": "0000-0003-1613-6546",
+            "affiliation": "Utrecht University",
+            "type": "Supervisor"
+        }
+    ],
+    "keywords": [
+        "slow sand filtration",
+        "water treatment",
+        "colloid filtration theory",
+        "biofilm",
+        "Schmutzdecke",
+        "porous media",
+        "extracellular polymeric substances",
+        "QMRA"
+    ],
+    "license": {
+        "id": "MIT"
+    },
+    "related_identifiers": [
+        {
+            "identifier": "https://github.com/PorousLab/ssf-toolkit",
+            "relation": "isSupplementTo",
+            "scheme": "url"
+        },
+        {
+            "identifier": "https://porouslab.github.io/ssf-toolkit/",
+            "relation": "isDocumentedBy",
+            "scheme": "url"
+        }
+    ],
+    "grants": [],
+    "communities": []
+}
