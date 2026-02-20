@@ -4,6 +4,8 @@
 
 [![Deploy to GitHub Pages](https://github.com/PorousLab/ssf-toolkit/actions/workflows/deploy.yml/badge.svg)](https://github.com/PorousLab/ssf-toolkit/actions/workflows/deploy.yml)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18704620.svg)](https://doi.org/10.5281/zenodo.18704620)
+
 🔗 **Live Demo:** [porouslab.github.io/ssf-toolkit](https://porouslab.github.io/ssf-toolkit/)
 
 ---
